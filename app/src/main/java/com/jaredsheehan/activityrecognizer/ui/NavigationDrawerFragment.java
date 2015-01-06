@@ -1,4 +1,4 @@
-package activityrecognizer.jaredsheehan.com.activityrecognizerapp.ui;
+package com.jaredsheehan.activityrecognizer.ui;
 
 import android.support.v7.app.ActionBarActivity;
 import android.app.Activity;
@@ -22,7 +22,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import activityrecognizer.jaredsheehan.com.activityrecognizerapp.R;
+import com.jaredsheehan.activityrecognizer.R;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.

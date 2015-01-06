@@ -1,28 +1,38 @@
-package activityrecognizer.jaredsheehan.com.activityrecognizerapp.ui;
+package com.jaredsheehan.activityrecognizer.ui;
 
 import android.app.Activity;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
+import android.app.PendingIntent;
+import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.support.v4.widget.DrawerLayout;
 
-import activityrecognizer.jaredsheehan.com.activityrecognizerapp.R;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.ActivityRecognitionClient;
+import com.jaredsheehan.activityrecognizer.R;
+import com.jaredsheehan.activityrecognizer.services.ActivityRecognitionIntentService;
 
 
 public class MainActivity extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
-
+    private static String LOG_TAG = MainActivity.class.getSimpleName();
+    private static final int ACTIVITY_RECOGNITION_REQUEST_INTERVAL = 10000;
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
+    private ActivityRecognitionClient mActivityRecognitionClient;
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -42,8 +52,50 @@ public class MainActivity extends ActionBarActivity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+        GooglePlayServicesClient.ConnectionCallbacks connectionCallback = new GooglePlayServicesClient.ConnectionCallbacks(){
+            @Override
+            public void onConnected(Bundle bundle) {
+                Log.d(LOG_TAG, "onConnected()");
+                /*
+                * Create the PendingIntent that Location Services uses
+                * to send activity recognition updates back to this app.
+                */
+                Intent intent = new Intent(MainActivity.this, ActivityRecognitionIntentService.class);
+                PendingIntent activityRecognitionPendingIntent =
+                        PendingIntent.getService(MainActivity.this, 0, intent,
+                                PendingIntent.FLAG_UPDATE_CURRENT);
+                mActivityRecognitionClient.requestActivityUpdates(ACTIVITY_RECOGNITION_REQUEST_INTERVAL, activityRecognitionPendingIntent);
+            }
+
+            @Override
+            public void onDisconnected() {
+                Log.d(LOG_TAG, "onDisconnected()");
+            }
+
+        };
+
+        GoogleApiClient.OnConnectionFailedListener onConnectionFailedListener = new GoogleApiClient.OnConnectionFailedListener(){
+
+            @Override
+            public void onConnectionFailed(ConnectionResult connectionResult) {
+                Log.d(LOG_TAG, "onConnectionFailed()");
+            }
+        };
+        mActivityRecognitionClient =
+                new ActivityRecognitionClient(this, connectionCallback, onConnectionFailedListener);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mActivityRecognitionClient.connect();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mActivityRecognitionClient.disconnect();
+    }
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments

@@ -1,4 +1,4 @@
-package activityrecognizer.jaredsheehan.com.activityrecognizerapp.services;
+package com.jaredsheehan.activityrecognizer.services;
 
 import android.app.IntentService;
 import android.content.Intent;

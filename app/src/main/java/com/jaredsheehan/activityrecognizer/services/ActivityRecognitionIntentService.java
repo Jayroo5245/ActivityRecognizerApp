@@ -6,6 +6,8 @@ import android.util.Log;
 
 import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
+import com.jaredsheehan.activityrecognizer.RecognitionApplication;
+import com.jaredsheehan.activityrecognizer.ui.MainActivity;
 
 /**
  * Created by jaredsheehan on 12/15/14.
@@ -13,6 +15,8 @@ import com.google.android.gms.location.DetectedActivity;
 public class ActivityRecognitionIntentService extends IntentService {
 
     private static String LOG_TAG = ActivityRecognitionIntentService.class.getSimpleName();
+    public static String ACTIVITY_NAME_KEY = "ACTIVITY_NAME_KEY";
+    public static String ACTIVITY_CONFIDENCE_KEY = "ACTIVITY_CONFIDENCE_KEY";
 
     public ActivityRecognitionIntentService(){
         super(ActivityRecognitionIntentService.class.getSimpleName());
@@ -48,6 +52,7 @@ public class ActivityRecognitionIntentService extends IntentService {
              */
             final String log = "ActivityRecognitionResult has result: activityName: " + activityName + " confidence: " + confidence;
             Log.d(LOG_TAG, log);
+            broadcastNewActivityRecognized(activityName, confidence);
 //            if(Configuration.DEBUG_ENABLED) {
 //                Utils.UIPost(new Runnable() {
 //                    public void run() {
@@ -107,4 +112,11 @@ public class ActivityRecognitionIntentService extends IntentService {
         return "unknown";
     }
 
+    private void broadcastNewActivityRecognized(String activityName, int confidence){
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra(ACTIVITY_NAME_KEY, activityName);
+        intent.putExtra(ACTIVITY_CONFIDENCE_KEY, confidence);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        RecognitionApplication.getInstance().startActivity(intent);
+    }
 }

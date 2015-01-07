@@ -18,15 +18,16 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
         <activity
-            android:name="com.jaredsheehan.activityrecognizer.ui.MainActivity"
-            android:label="@string/app_name" >
+            android:name=".ui.MainActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <service
-            android:name="com.jaredsheehan.activityrecognizer.services.ActivityRecognitionIntentService"
+            android:name=".services.ActivityRecognitionIntentService"
             android:exported="false">
         </service>
     </application>

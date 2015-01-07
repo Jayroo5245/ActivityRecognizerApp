@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -22,7 +23,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.ActivityRecognitionClient;
 import com.jaredsheehan.activityrecognizer.R;
 import com.jaredsheehan.activityrecognizer.services.ActivityRecognitionIntentService;
-
 
 public class MainActivity extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
@@ -38,6 +38,8 @@ public class MainActivity extends ActionBarActivity
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
+
+    private boolean mIsVisible = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,15 +88,36 @@ public class MainActivity extends ActionBarActivity
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if(mIsVisible == true && intent != null && intent.hasExtra(ActivityRecognitionIntentService.ACTIVITY_NAME_KEY)){
+            onNewActivity(intent);
+        }
+    }
+
+    private void onNewActivity(Intent intent){
+        Log.d(LOG_TAG, "onNewActivity(Intent intent)");
+        if(intent != null){
+            String activityName = intent.getStringExtra(ActivityRecognitionIntentService.ACTIVITY_NAME_KEY);
+            int confidence = intent.getIntExtra(ActivityRecognitionIntentService.ACTIVITY_CONFIDENCE_KEY, -1);
+            final String log = "ActivityRecognitionResult has result: activityName: " + activityName + ": confidence: " + confidence;
+            Log.d(LOG_TAG, "New Activity: " + log);
+            Toast.makeText(this, log, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         mActivityRecognitionClient.connect();
+        mIsVisible = true;
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         mActivityRecognitionClient.disconnect();
+        mIsVisible = false;
     }
     @Override
     public void onNavigationDrawerItemSelected(int position) {
